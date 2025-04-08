@@ -4,7 +4,7 @@ import { createServer } from 'http';
 import { searchRealEstateByNaturalLanguage, searchRealEstateByParams, getMunicipalities, getUrbanPlanning } from './tools/realEstateTools.js';
 
 // サーバーを起動する関数
-export function startServer(port: number = 3000): void {
+export function startServer(port: number = 3000, host: string = '127.0.0.1'): void {
   const app = express();
   const server = createServer(app);
 
@@ -66,8 +66,8 @@ export function startServer(port: number = 3000): void {
   });
 
   // サーバー起動
-  server.listen(port, () => {
-    console.log(`不動産情報ライブラリMCPサーバーが起動しました: http://localhost:${port}`);
-    console.log(`MCP情報: http://localhost:${port}/.well-known/mcp`);
+  server.listen(port, host, () => {
+    console.log(`不動産情報ライブラリMCPサーバーが起動しました: http://${host}:${port}`);
+    console.log(`MCP情報: http://${host}:${port}/.well-known/mcp`);
   });
 } 
