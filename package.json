@@ -1,10 +1,10 @@
 {
-  "name": "realestate-library-mcp",
+  "name": "@miyatsuko10004/realestate-library-mcp",
   "version": "1.0.0",
   "main": "dist/index.js",
   "type": "module",
   "bin": {
-    "realestate-mcp": "./bin/realestate-mcp.js"
+    "realestate-library-mcp": "./bin/realestate-mcp.js"
   },
   "scripts": {
     "build": "tsc && chmod +x ./bin/realestate-mcp.js",
@@ -21,7 +21,7 @@
     "dist",
     "bin"
   ],
-  "author": "",
+  "author": "miyatsuko10004",
   "license": "ISC",
   "dependencies": {
     "@modelcontextprotocol/server-github": "^2025.4.8",
@@ -37,5 +37,8 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },
-  "description": "MCP server for accessing real estate information from MLIT Japan's Real Estate Information Library"
+  "description": "MCP server for accessing real estate information from MLIT Japan's Real Estate Information Library",
+  "publishConfig": {
+    "access": "public"
+  }
 }

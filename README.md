@@ -16,17 +16,29 @@
 
 ## 使い方
 
-### NPXでの実行（推奨）
+npmを通じてパッケージをインストールせずに実行する場合：
 
 ```bash
-# APIキーをコマンドライン引数で指定
-npx realestate-library-mcp --api-key YOUR_API_KEY
+# APIキーを指定して実行
+npx @miyatsuko10004/realestate-library-mcp -k YOUR_API_KEY
 
-# または短縮形で
-npx realestate-library-mcp -k YOUR_API_KEY
+# ポート番号も指定する場合
+npx @miyatsuko10004/realestate-library-mcp -k YOUR_API_KEY -p 8080
+```
 
-# ポート番号を指定する場合
-npx realestate-library-mcp -k YOUR_API_KEY -p 8080
+ローカルにクローンして使用する場合：
+
+```bash
+# リポジトリをクローン
+git clone https://github.com/miyatsuko10004/realestate-library-mcp.git
+cd realestate-library-mcp
+
+# 依存関係のインストールとビルド
+npm install
+npm run build
+
+# 実行
+node dist/cli.js -k YOUR_API_KEY
 ```
 
 ### mcp.json形式での設定
@@ -55,29 +67,6 @@ npx realestate-library-mcp --config ./mcp.json
 ```bash
 MCP_CONFIG=./mcp.json npx realestate-library-mcp
 ```
-
-### ローカルインストール
-
-```bash
-# リポジトリをクローン
-git clone https://github.com/miyatsuko10004/realestate-library-mcp.git
-cd realestate-library-mcp
-
-# 依存関係のインストール
-npm install
-
-# .envファイルの作成（APIキーをコマンドライン引数で指定しない場合）
-cp .env.example .env
-# .envファイルを編集して、REINFOLIB_API_KEYに取得したAPIキーを設定
-
-# ビルド
-npm run build
-
-# 起動
-npm start
-```
-
-サーバーは、デフォルトで`http://localhost:3000`で起動します。
 
 ### コマンドラインオプション
 
