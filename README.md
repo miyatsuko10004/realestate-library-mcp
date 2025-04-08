@@ -14,7 +14,22 @@
 - Node.js 18.x以上
 - 不動産情報ライブラリのAPIキー（[申請方法](https://www.reinfolib.mlit.go.jp/help/apiManual/#titleApiApplication)を参照）
 
-## インストール
+## 使い方
+
+### NPXでの実行（推奨）
+
+```bash
+# APIキーをコマンドライン引数で指定
+npx realestate-library-mcp --api-key YOUR_API_KEY
+
+# または短縮形で
+npx realestate-library-mcp -k YOUR_API_KEY
+
+# ポート番号を指定する場合
+npx realestate-library-mcp -k YOUR_API_KEY -p 8080
+```
+
+### ローカルインストール
 
 ```bash
 # リポジトリをクローン
@@ -24,23 +39,27 @@ cd realestate-library-mcp
 # 依存関係のインストール
 npm install
 
-# .envファイルの作成
+# .envファイルの作成（APIキーをコマンドライン引数で指定しない場合）
 cp .env.example .env
 # .envファイルを編集して、REINFOLIB_API_KEYに取得したAPIキーを設定
 
 # ビルド
 npm run build
-```
 
-## 使い方
-
-### サーバーの起動
-
-```bash
+# 起動
 npm start
 ```
 
 サーバーは、デフォルトで`http://localhost:3000`で起動します。
+
+### コマンドラインオプション
+
+```
+Options:
+  -k, --api-key <key>     不動産情報ライブラリAPIキー
+  -p, --port <number>     サーバーのポート番号 (デフォルト: "3000")
+  -h, --help              ヘルプ情報を表示
+```
 
 ### MCP情報の確認
 
