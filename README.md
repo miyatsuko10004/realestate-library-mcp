@@ -49,7 +49,7 @@ MCPサーバーの設定をファイルとして管理したい場合は、`mcp.
 
 ```json
 {
-  "realestate-library-mcp": {
+  "@miyatsuko10004/realestate-library-mcp": {
     "apiKey": "YOUR_API_KEY",
     "port": 3000
   }
@@ -59,13 +59,13 @@ MCPサーバーの設定をファイルとして管理したい場合は、`mcp.
 2. mcp.jsonファイルを指定してサーバーを実行：
 
 ```bash
-npx realestate-library-mcp --config ./mcp.json
+npx @miyatsuko10004/realestate-library-mcp --config ./mcp.json
 ```
 
 または以下のように`MCP_CONFIG`環境変数を設定して実行することもできます：
 
 ```bash
-MCP_CONFIG=./mcp.json npx realestate-library-mcp
+MCP_CONFIG=./mcp.json npx @miyatsuko10004/realestate-library-mcp
 ```
 
 ### コマンドラインオプション
