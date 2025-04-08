@@ -29,11 +29,38 @@ npx realestate-library-mcp -k YOUR_API_KEY
 npx realestate-library-mcp -k YOUR_API_KEY -p 8080
 ```
 
+### mcp.json形式での設定
+
+MCPサーバーの設定をファイルとして管理したい場合は、`mcp.json`ファイルを使用できます。
+
+1. カレントディレクトリに`mcp.json`ファイルを作成します：
+
+```json
+{
+  "realestate-library-mcp": {
+    "apiKey": "YOUR_API_KEY",
+    "port": 3000
+  }
+}
+```
+
+2. mcp.jsonファイルを指定してサーバーを実行：
+
+```bash
+npx realestate-library-mcp --config ./mcp.json
+```
+
+または以下のように`MCP_CONFIG`環境変数を設定して実行することもできます：
+
+```bash
+MCP_CONFIG=./mcp.json npx realestate-library-mcp
+```
+
 ### ローカルインストール
 
 ```bash
 # リポジトリをクローン
-git clone https://github.com/yourusername/realestate-library-mcp.git
+git clone https://github.com/miyatsuko10004/realestate-library-mcp.git
 cd realestate-library-mcp
 
 # 依存関係のインストール
@@ -58,6 +85,7 @@ npm start
 Options:
   -k, --api-key <key>     不動産情報ライブラリAPIキー
   -p, --port <number>     サーバーのポート番号 (デフォルト: "3000")
+  -c, --config <path>     mcp.json設定ファイルのパス
   -h, --help              ヘルプ情報を表示
 ```
 
