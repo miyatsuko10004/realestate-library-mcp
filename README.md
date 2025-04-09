@@ -4,10 +4,11 @@
 
 ## 機能
 
-- 自然言語での不動産情報検索（例：「東京都新宿区の2022年の物件情報を5件取得」）
-- パラメータを直接指定しての不動産情報検索
-- 都道府県内の市区町村一覧の取得
-- 都市計画区域/区域区分情報の取得
+- 自然言語での不動産情報検索
+- パラメータ指定での不動産情報検索
+- 都道府県内市区町村一覧の取得
+- 鑑定評価書情報の検索
+- 各種GISデータ（不動産価格ポイント、地価公示ポイント、都市計画、国土数値情報、災害リスク等）の取得
 
 ## 前提条件
 
@@ -75,6 +76,7 @@ Options:
   -k, --api-key <key>     不動産情報ライブラリAPIキー
   -p, --port <number>     サーバーのポート番号 (デフォルト: "3000")
   -c, --config <path>     mcp.json設定ファイルのパス
+  -H, --host <hostname>   サーバーをバインドするホスト名 (デフォルト: "127.0.0.1")
   -h, --help              ヘルプ情報を表示
 ```
 
@@ -88,7 +90,7 @@ GET http://localhost:3000/.well-known/mcp
 
 #### 1. searchRealEstateByNaturalLanguage
 
-自然言語による検索クエリから不動産情報を検索します。
+自然言語による検索クエリから不動産価格情報を検索します。
 
 ```json
 {
@@ -98,7 +100,7 @@ GET http://localhost:3000/.well-known/mcp
 
 #### 2. searchRealEstateByParams
 
-特定のパラメータを指定して不動産情報を検索します。
+特定のパラメータを指定して不動産価格情報を検索します。
 
 ```json
 {
@@ -120,15 +122,214 @@ GET http://localhost:3000/.well-known/mcp
 }
 ```
 
-#### 4. getUrbanPlanning
+#### 4. getAppraisal
 
-特定のタイル座標における都市計画区域/区域区分情報をGeoJSON形式で取得します。
+鑑定評価書情報を検索します。
 
 ```json
 {
-  "zoom": 11,
+  "prefecture": "13",
+  "city": "13101",
+  "limit": 3
+}
+```
+
+#### 5. getRealEstatePricePointData
+
+不動産価格（取引価格・成約価格）情報のポイント (点) をXYZタイル座標で取得します。
+
+```json
+{
+  "response_format": "geojson",
+  "z": 12,
+  "x": 3636,
+  "y": 1613
+}
+```
+
+#### 6. getLandPricePointData
+
+地価公示・地価調査のポイント（点）をXYZタイル座標で取得します。
+
+```json
+{
+  "response_format": "geojson",
+  "z": 13,
+  "x": 7273,
+  "y": 3226,
+  "year": "2023"
+}
+```
+
+#### 7. getUrbanPlanningDistrict
+
+都市計画決定GISデータ（都市計画区域/区域区分）をXYZタイル座標で取得します。
+
+```json
+{
+  "response_format": "geojson",
+  "z": 11,
   "x": 1818,
   "y": 806
+}
+```
+
+#### 8. getLandUseZone
+
+都市計画決定GISデータ（用途地域）をXYZタイル座標で取得します。
+
+```json
+{
+  "response_format": "pbf",
+  "z": 14,
+  "x": 14546,
+  "y": 6452,
+  "year": "2022"
+}
+```
+
+#### 9. getLocationOptimizationPlan
+
+都市計画決定GISデータ（立地適正化計画）をXYZタイル座標で取得します。
+
+```json
+{
+  "response_format": "geojson",
+  "z": 11,
+  "x": 1818,
+  "y": 807
+}
+```
+
+#### 10. getElementarySchoolDistrict
+
+国土数値情報（小学校区）をXYZタイル座標で取得します。
+
+```json
+{
+  "response_format": "geojson",
+  "z": 13,
+  "x": 7273,
+  "y": 3225
+}
+```
+
+#### 11. getJuniorHighSchoolDistrict
+
+国土数値情報（中学校区）をXYZタイル座標で取得します。
+
+```json
+{
+  "response_format": "pbf",
+  "z": 13,
+  "x": 7273,
+  "y": 3225
+}
+```
+
+#### 12. getSchool
+
+国土数値情報（学校）をXYZタイル座標で取得します。
+
+```json
+{
+  "response_format": "geojson",
+  "z": 14,
+  "x": 14547,
+  "y": 6451
+}
+```
+
+#### 13. getChildcareFacility
+
+国土数値情報（保育園・幼稚園等）をXYZタイル座標で取得します。
+
+```json
+{
+  "response_format": "geojson",
+  "z": 15,
+  "x": 29094,
+  "y": 12903
+}
+```
+
+#### 14. getMedicalFacility
+
+国土数値情報（医療機関）をXYZタイル座標で取得します。
+
+```json
+{
+  "response_format": "pbf",
+  "z": 15,
+  "x": 29095,
+  "y": 12903
+}
+```
+
+#### 15. getPopulationMesh
+
+国土数値情報（将来推計人口250mメッシュ）をXYZタイル座標で取得します。
+
+```json
+{
+  "response_format": "geojson",
+  "z": 15,
+  "x": 29094,
+  "y": 12903,
+  "year": "2030"
+}
+```
+
+#### 16. getStationPassengers
+
+国土数値情報（駅別乗降客数）をXYZタイル座標で取得します。
+
+```json
+{
+  "response_format": "geojson",
+  "z": 14,
+  "x": 14547,
+  "y": 6451,
+  "year": "2021"
+}
+```
+
+#### 17. getLibrary
+
+国土数値情報（図書館）をXYZタイル座標で取得します。
+
+```json
+{
+  "response_format": "geojson",
+  "z": 14,
+  "x": 14547,
+  "y": 6451
+}
+```
+
+#### 18. getDisasterHazardArea
+
+国土数値情報（災害危険区域）をXYZタイル座標で取得します。
+
+```json
+{
+  "response_format": "pbf",
+  "z": 12,
+  "x": 3636,
+  "y": 1612
+}
+```
+
+#### 19. getLiquefactionTendency
+
+国土交通省都市局（地形区分に基づく液状化の発生傾向図）をXYZタイル座標で取得します。
+
+```json
+{
+  "response_format": "geojson",
+  "z": 13,
+  "x": 7273,
+  "y": 3226
 }
 ```
 
@@ -141,11 +342,13 @@ Claudeのデスクトップアプリでは、このMCPサーバーを追加し�
 3. サーバーURLに`http://localhost:3000`を入力
 4. 保存して接続
 
-接続後、以下のように不動産情報について質問できます：
+接続後、以下のように不動産情報や関連データについて質問できます：
 
 - 「東京都渋谷区の最近の不動産取引情報を教えて」
 - 「大阪府の住宅価格の相場はいくらですか？」
 - 「神奈川県横浜市の2023年の取引データを5件見せて」
+- 「この座標 (Z=14, X=14546, Y=6452) の用途地域は何ですか？」
+- 「千葉市中央区の小学校区データを表示して」
 
 ## ライセンス
 
@@ -153,4 +356,6 @@ MIT
 
 ## 謝辞
 
-このプロジェクトは、国土交通省の不動産情報ライブラリAPIを利用しています。データの提供に感謝いたします。 
+このプロジェクトは、国土交通省の不動産情報ライブラリAPIを利用しています。データの提供に感謝いたします。
+
+[Source: 不動産情報ライブラリAPI操作説明](https://www.reinfolib.mlit.go.jp/help/apiManual/) 

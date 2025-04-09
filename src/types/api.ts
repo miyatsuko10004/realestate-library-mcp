@@ -65,4 +65,56 @@ export interface RealEstatePriceParams {
   maxPricePerSquareMeter?: string; // 最高㎡単価
   keywords?: string; // キーワード（住所など）
   limit?: number; // 取得件数制限
+}
+
+// 鑑定評価書情報APIのパラメータ型定義
+export interface AppraisalParams {
+  id?: string; // 鑑定評価書ID
+  prefecture?: string; // 都道府県コード
+  city?: string; // 市区町村コード
+  keywords?: string; // キーワード
+  limit?: number; // 取得件数制限
+}
+
+// 不動産価格情報ポイントAPIの共通パラメータ
+export interface PointApiParams {
+  response_format: 'geojson' | 'pbf'; // レスポンス形式
+  z: number; // ズームレベル
+  x: number; // タイル座標X
+  y: number; // タイル座標Y
+}
+
+// 地価公示・地価調査APIのパラメータ
+export interface LandPriceParams extends PointApiParams {
+  type?: string; // 情報種別
+  prefecture?: string; // 都道府県コード
+  city?: string; // 市区町村コード
+  year?: string; // 年度
+}
+
+// 都市計画決定GISデータAPIの共通パラメータ
+export interface UrbanPlanningParams extends PointApiParams {
+  year?: string; // 年度
+}
+
+// 国土数値情報APIの共通パラメータ
+export interface NationalLandInfoParams extends PointApiParams {
+  year?: string; // 年度
+}
+
+// 人口メッシュAPIのパラメータ
+export interface PopulationMeshParams extends PointApiParams {
+  year?: string; // 予測年
+  type?: string; // 人口タイプ（総人口、年少人口など）
+}
+
+// 駅別乗降客数APIのパラメータ
+export interface StationPassengersParams extends PointApiParams {
+  company_type?: string; // 事業者種別
+  year?: string; // 年度
+}
+
+// 液状化発生傾向図APIのパラメータ
+export interface LiquefactionParams extends PointApiParams {
+  // 基本パラメータのみ
 } 

@@ -1,6 +1,19 @@
 import axios from 'axios';
 import * as dotenv from 'dotenv';
-import { RealEstatePrice, RealEstatePriceParams, Prefecture, ApiError } from '../types/api.js';
+import { 
+  RealEstatePrice, 
+  RealEstatePriceParams, 
+  Prefecture, 
+  ApiError, 
+  PointApiParams, 
+  LandPriceParams,
+  AppraisalParams,
+  UrbanPlanningParams,
+  NationalLandInfoParams,
+  PopulationMeshParams,
+  StationPassengersParams,
+  LiquefactionParams
+} from '../types/api.js';
 
 dotenv.config();
 
@@ -127,4 +140,289 @@ export function parseNaturalLanguageQuery(query: string): RealEstatePriceParams 
   params.limit = 10;
   
   return params;
+}
+
+/**
+ * 鑑定評価書情報を取得する
+ */
+export async function getAppraisalData(params: AppraisalParams): Promise<any> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/AppraisalData`, {
+      headers,
+      params,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('鑑定評価書情報の取得に失敗しました:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
+    }
+    throw new Error('APIとの通信中にエラーが発生しました');
+  }
+}
+
+/**
+ * 不動産価格情報のポイントデータを取得する
+ */
+export async function getRealEstatePricePoints(params: PointApiParams): Promise<any> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/PricePoint`, {
+      headers,
+      params,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('不動産価格ポイント情報の取得に失敗しました:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
+    }
+    throw new Error('APIとの通信中にエラーが発生しました');
+  }
+}
+
+/**
+ * 地価公示・地価調査のポイントデータを取得する
+ */
+export async function getLandPricePoints(params: LandPriceParams): Promise<any> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/LandPrice`, {
+      headers,
+      params,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('地価公示・地価調査情報の取得に失敗しました:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
+    }
+    throw new Error('APIとの通信中にエラーが発生しました');
+  }
+}
+
+/**
+ * 用途地域データを取得する
+ */
+export async function getLandUseZoneData(params: UrbanPlanningParams): Promise<any> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/LandUseZone`, {
+      headers,
+      params,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('用途地域データの取得に失敗しました:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
+    }
+    throw new Error('APIとの通信中にエラーが発生しました');
+  }
+}
+
+/**
+ * 立地適正化計画データを取得する
+ */
+export async function getLocationOptimizationPlanData(params: UrbanPlanningParams): Promise<any> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/LocationOptimizationPlan`, {
+      headers,
+      params,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('立地適正化計画データの取得に失敗しました:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
+    }
+    throw new Error('APIとの通信中にエラーが発生しました');
+  }
+}
+
+/**
+ * 小学校区データを取得する
+ */
+export async function getElementarySchoolDistrictData(params: NationalLandInfoParams): Promise<any> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/ElementarySchoolDistrict`, {
+      headers,
+      params,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('小学校区データの取得に失敗しました:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
+    }
+    throw new Error('APIとの通信中にエラーが発生しました');
+  }
+}
+
+/**
+ * 中学校区データを取得する
+ */
+export async function getJuniorHighSchoolDistrictData(params: NationalLandInfoParams): Promise<any> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/JuniorHighSchoolDistrict`, {
+      headers,
+      params,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('中学校区データの取得に失敗しました:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
+    }
+    throw new Error('APIとの通信中にエラーが発生しました');
+  }
+}
+
+/**
+ * 学校データを取得する
+ */
+export async function getSchoolData(params: NationalLandInfoParams): Promise<any> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/School`, {
+      headers,
+      params,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('学校データの取得に失敗しました:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
+    }
+    throw new Error('APIとの通信中にエラーが発生しました');
+  }
+}
+
+/**
+ * 保育園・幼稚園等データを取得する
+ */
+export async function getChildcareFacilityData(params: NationalLandInfoParams): Promise<any> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/ChildcareFacility`, {
+      headers,
+      params,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('保育園・幼稚園等データの取得に失敗しました:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
+    }
+    throw new Error('APIとの通信中にエラーが発生しました');
+  }
+}
+
+/**
+ * 医療機関データを取得する
+ */
+export async function getMedicalFacilityData(params: NationalLandInfoParams): Promise<any> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/MedicalFacility`, {
+      headers,
+      params,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('医療機関データの取得に失敗しました:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
+    }
+    throw new Error('APIとの通信中にエラーが発生しました');
+  }
+}
+
+/**
+ * 将来推計人口メッシュデータを取得する
+ */
+export async function getPopulationMeshData(params: PopulationMeshParams): Promise<any> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/PopulationMesh`, {
+      headers,
+      params,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('将来推計人口メッシュデータの取得に失敗しました:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
+    }
+    throw new Error('APIとの通信中にエラーが発生しました');
+  }
+}
+
+/**
+ * 駅別乗降客数データを取得する
+ */
+export async function getStationPassengersData(params: StationPassengersParams): Promise<any> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/StationPassengers`, {
+      headers,
+      params,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('駅別乗降客数データの取得に失敗しました:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
+    }
+    throw new Error('APIとの通信中にエラーが発生しました');
+  }
+}
+
+/**
+ * 図書館データを取得する
+ */
+export async function getLibraryData(params: NationalLandInfoParams): Promise<any> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/Library`, {
+      headers,
+      params,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('図書館データの取得に失敗しました:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
+    }
+    throw new Error('APIとの通信中にエラーが発生しました');
+  }
+}
+
+/**
+ * 災害危険区域データを取得する
+ */
+export async function getDisasterHazardAreaData(params: NationalLandInfoParams): Promise<any> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/DisasterHazardArea`, {
+      headers,
+      params,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('災害危険区域データの取得に失敗しました:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
+    }
+    throw new Error('APIとの通信中にエラーが発生しました');
+  }
+}
+
+/**
+ * 地形区分に基づく液状化の発生傾向図データを取得する
+ */
+export async function getLiquefactionTendencyData(params: LiquefactionParams): Promise<any> {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/LiquefactionTendency`, {
+      headers,
+      params,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('液状化発生傾向図データの取得に失敗しました:', error);
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
+    }
+    throw new Error('APIとの通信中にエラーが発生しました');
+  }
 } 
