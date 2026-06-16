@@ -35,6 +35,10 @@
     "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/miyatsuko10004/realestate-library-mcp"
+  },
   "description": "MCP server for accessing real estate information from MLIT Japan's Real Estate Information Library",
   "publishConfig": {
     "access": "public"
