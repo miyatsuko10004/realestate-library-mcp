@@ -1,428 +1,215 @@
 import axios from 'axios';
 import * as dotenv from 'dotenv';
-import { 
-  RealEstatePrice, 
-  RealEstatePriceParams, 
-  Prefecture, 
-  ApiError, 
-  PointApiParams, 
-  LandPriceParams,
+import {
+  RealEstatePriceParams,
+  MunicipalitiesParams,
   AppraisalParams,
-  UrbanPlanningParams,
-  NationalLandInfoParams,
-  PopulationMeshParams,
-  StationPassengersParams,
-  LiquefactionParams
+  RealEstatePricePointParams,
+  LandPricePointParams,
+  XYZParams,
+  WelfareFacilityParams,
+  NaturalParkParams,
+  SlopeDisasterParams,
+  DensityPopulationParams,
+  DisasterHistoryParams,
 } from '../types/api.js';
 
 dotenv.config();
 
 const API_BASE_URL = 'https://www.reinfolib.mlit.go.jp/ex-api/external';
-const API_KEY = process.env.REINFOLIB_API_KEY;
 
-// ヘッダーの設定
-const headers = {
-  'Ocp-Apim-Subscription-Key': API_KEY,
-};
+function getHeaders() {
+  return {
+    'Ocp-Apim-Subscription-Key': process.env.REINFOLIB_API_KEY,
+  };
+}
 
-/**
- * 不動産価格情報を取得する
- */
-export async function getRealEstateData(params: RealEstatePriceParams): Promise<RealEstatePrice[]> {
+async function callApi(endpoint: string, params: object = {}): Promise<any> {
   try {
-    const response = await axios.get(`${API_BASE_URL}/PriceData`, {
-      headers,
+    const response = await axios.get(`${API_BASE_URL}/${endpoint}`, {
+      headers: getHeaders(),
       params,
     });
     return response.data;
   } catch (error) {
-    console.error('不動産価格情報の取得に失敗しました:', error);
     if (axios.isAxiosError(error) && error.response) {
-      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
+      throw new Error(`API Error ${error.response.status}: ${JSON.stringify(error.response.data)}`);
     }
-    throw new Error('APIとの通信中にエラーが発生しました');
+    throw error;
   }
 }
 
-/**
- * 都道府県内市区町村一覧を取得する
- */
-export async function getPrefectureMunicipalities(prefCode: string): Promise<Prefecture> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/PreMuni/${prefCode}`, {
-      headers,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('市区町村一覧の取得に失敗しました:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
-    }
-    throw new Error('APIとの通信中にエラーが発生しました');
-  }
+// XIT001: 不動産価格（取引価格・成約価格）情報取得
+export async function getRealEstateData(params: RealEstatePriceParams): Promise<any> {
+  return callApi('XIT001', params);
 }
 
-/**
- * 都市計画区域/区域区分情報をGeoJSON形式で取得する
- */
-export async function getUrbanPlanningArea(zoom: number, x: number, y: number): Promise<any> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/XKT025`, {
-      headers,
-      params: {
-        response_format: 'geojson',
-        z: zoom,
-        x,
-        y,
-      },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('都市計画区域情報の取得に失敗しました:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
-    }
-    throw new Error('APIとの通信中にエラーが発生しました');
-  }
+// XIT002: 都道府県内市区町村一覧取得
+export async function getMunicipalitiesData(params: MunicipalitiesParams): Promise<any> {
+  return callApi('XIT002', params);
 }
 
-/**
- * 自然言語の入力から適切なAPIパラメータを生成する
- */
-export function parseNaturalLanguageQuery(query: string): RealEstatePriceParams {
-  const params: RealEstatePriceParams = {};
-  
-  // 都道府県名の抽出
-  const prefectureMatch = query.match(/([東西南北]?[京都大阪神奈川愛知道府県]|[^\s]+[都道府県])/);
-  if (prefectureMatch) {
-    // 実際のAPIでは都道府県コードが必要なため、名前から変換する処理が必要
-    // ここでは仮のコード変換（実際の実装では全都道府県のマッピングが必要）
-    const prefMap: {[key: string]: string} = {
-      '東京都': '13', '大阪府': '27', '愛知県': '23', '神奈川県': '14',
-      '北海道': '01', '京都府': '26', '兵庫県': '28', '福岡県': '40'
-    };
-    const prefName = prefectureMatch[0];
-    params.prefecture = prefMap[prefName];
-  }
-  
-  // 市区町村名の抽出
-  const cityMatch = query.match(/([^\s]+[市区町村])/);
-  if (cityMatch) {
-    params.keywords = cityMatch[0];
-  }
-  
-  // 価格範囲の抽出
-  const minPriceMatch = query.match(/(\d+)万円以上/);
-  if (minPriceMatch) {
-    params.minTradePrice = String(Number(minPriceMatch[1]) * 10000);
-  }
-  
-  const maxPriceMatch = query.match(/(\d+)万円以下/);
-  if (maxPriceMatch) {
-    params.maxTradePrice = String(Number(maxPriceMatch[1]) * 10000);
-  }
-  
-  // 面積の抽出
-  const areaMatch = query.match(/(\d+)平方メートル/);
-  if (areaMatch) {
-    params.area = areaMatch[1];
-  }
-  
-  // 期間の抽出
-  const yearMatch = query.match(/(20\d\d)年/);
-  if (yearMatch) {
-    const year = yearMatch[1];
-    params.from = `${year}-1`;
-    params.to = `${year}-4`;
-  }
-  
-  // 件数制限の設定（デフォルト）
-  params.limit = 10;
-  
-  return params;
-}
-
-/**
- * 鑑定評価書情報を取得する
- */
+// XCT001: 鑑定評価書情報
 export async function getAppraisalData(params: AppraisalParams): Promise<any> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/AppraisalData`, {
-      headers,
-      params,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('鑑定評価書情報の取得に失敗しました:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
-    }
-    throw new Error('APIとの通信中にエラーが発生しました');
-  }
+  return callApi('XCT001', params);
 }
 
-/**
- * 不動産価格情報のポイントデータを取得する
- */
-export async function getRealEstatePricePoints(params: PointApiParams): Promise<any> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/PricePoint`, {
-      headers,
-      params,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('不動産価格ポイント情報の取得に失敗しました:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
-    }
-    throw new Error('APIとの通信中にエラーが発生しました');
-  }
+// XPT001: 不動産価格ポイント
+export async function getRealEstatePricePoints(params: RealEstatePricePointParams): Promise<any> {
+  return callApi('XPT001', params);
 }
 
-/**
- * 地価公示・地価調査のポイントデータを取得する
- */
-export async function getLandPricePoints(params: LandPriceParams): Promise<any> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/LandPrice`, {
-      headers,
-      params,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('地価公示・地価調査情報の取得に失敗しました:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
-    }
-    throw new Error('APIとの通信中にエラーが発生しました');
-  }
+// XPT002: 地価公示・地価調査ポイント
+export async function getLandPricePoints(params: LandPricePointParams): Promise<any> {
+  return callApi('XPT002', params);
 }
 
-/**
- * 用途地域データを取得する
- */
-export async function getLandUseZoneData(params: UrbanPlanningParams): Promise<any> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/LandUseZone`, {
-      headers,
-      params,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('用途地域データの取得に失敗しました:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
-    }
-    throw new Error('APIとの通信中にエラーが発生しました');
-  }
+// XKT001: 都市計画決定GISデータ（都市計画区域/区域区分）
+export async function getUrbanPlanningDistrictData(params: XYZParams): Promise<any> {
+  return callApi('XKT001', params);
 }
 
-/**
- * 立地適正化計画データを取得する
- */
-export async function getLocationOptimizationPlanData(params: UrbanPlanningParams): Promise<any> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/LocationOptimizationPlan`, {
-      headers,
-      params,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('立地適正化計画データの取得に失敗しました:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
-    }
-    throw new Error('APIとの通信中にエラーが発生しました');
-  }
+// XKT002: 都市計画決定GISデータ（用途地域）
+export async function getLandUseZoneData(params: XYZParams): Promise<any> {
+  return callApi('XKT002', params);
 }
 
-/**
- * 小学校区データを取得する
- */
-export async function getElementarySchoolDistrictData(params: NationalLandInfoParams): Promise<any> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/ElementarySchoolDistrict`, {
-      headers,
-      params,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('小学校区データの取得に失敗しました:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
-    }
-    throw new Error('APIとの通信中にエラーが発生しました');
-  }
+// XKT003: 都市計画決定GISデータ（立地適正化計画）
+export async function getLocationOptimizationPlanData(params: XYZParams): Promise<any> {
+  return callApi('XKT003', params);
 }
 
-/**
- * 中学校区データを取得する
- */
-export async function getJuniorHighSchoolDistrictData(params: NationalLandInfoParams): Promise<any> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/JuniorHighSchoolDistrict`, {
-      headers,
-      params,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('中学校区データの取得に失敗しました:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
-    }
-    throw new Error('APIとの通信中にエラーが発生しました');
-  }
+// XKT004: 国土数値情報（小学校区）
+export async function getElementarySchoolDistrictData(params: XYZParams): Promise<any> {
+  return callApi('XKT004', params);
 }
 
-/**
- * 学校データを取得する
- */
-export async function getSchoolData(params: NationalLandInfoParams): Promise<any> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/School`, {
-      headers,
-      params,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('学校データの取得に失敗しました:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
-    }
-    throw new Error('APIとの通信中にエラーが発生しました');
-  }
+// XKT005: 国土数値情報（中学校区）
+export async function getJuniorHighSchoolDistrictData(params: XYZParams): Promise<any> {
+  return callApi('XKT005', params);
 }
 
-/**
- * 保育園・幼稚園等データを取得する
- */
-export async function getChildcareFacilityData(params: NationalLandInfoParams): Promise<any> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/ChildcareFacility`, {
-      headers,
-      params,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('保育園・幼稚園等データの取得に失敗しました:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
-    }
-    throw new Error('APIとの通信中にエラーが発生しました');
-  }
+// XKT006: 国土数値情報（学校）
+export async function getSchoolData(params: XYZParams): Promise<any> {
+  return callApi('XKT006', params);
 }
 
-/**
- * 医療機関データを取得する
- */
-export async function getMedicalFacilityData(params: NationalLandInfoParams): Promise<any> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/MedicalFacility`, {
-      headers,
-      params,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('医療機関データの取得に失敗しました:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
-    }
-    throw new Error('APIとの通信中にエラーが発生しました');
-  }
+// XKT007: 国土数値情報（保育園・幼稚園等）
+export async function getChildcareFacilityData(params: XYZParams): Promise<any> {
+  return callApi('XKT007', params);
 }
 
-/**
- * 将来推計人口メッシュデータを取得する
- */
-export async function getPopulationMeshData(params: PopulationMeshParams): Promise<any> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/PopulationMesh`, {
-      headers,
-      params,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('将来推計人口メッシュデータの取得に失敗しました:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
-    }
-    throw new Error('APIとの通信中にエラーが発生しました');
-  }
+// XKT010: 国土数値情報（医療機関）
+export async function getMedicalFacilityData(params: XYZParams): Promise<any> {
+  return callApi('XKT010', params);
 }
 
-/**
- * 駅別乗降客数データを取得する
- */
-export async function getStationPassengersData(params: StationPassengersParams): Promise<any> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/StationPassengers`, {
-      headers,
-      params,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('駅別乗降客数データの取得に失敗しました:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
-    }
-    throw new Error('APIとの通信中にエラーが発生しました');
-  }
+// XKT011: 国土数値情報（福祉施設）
+export async function getWelfareFacilityData(params: WelfareFacilityParams): Promise<any> {
+  return callApi('XKT011', params);
 }
 
-/**
- * 図書館データを取得する
- */
-export async function getLibraryData(params: NationalLandInfoParams): Promise<any> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/Library`, {
-      headers,
-      params,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('図書館データの取得に失敗しました:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
-    }
-    throw new Error('APIとの通信中にエラーが発生しました');
-  }
+// XKT013: 国土数値情報（将来推計人口250mメッシュ）
+export async function getPopulationMeshData(params: XYZParams): Promise<any> {
+  return callApi('XKT013', params);
 }
 
-/**
- * 災害危険区域データを取得する
- */
-export async function getDisasterHazardAreaData(params: NationalLandInfoParams): Promise<any> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/DisasterHazardArea`, {
-      headers,
-      params,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('災害危険区域データの取得に失敗しました:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
-    }
-    throw new Error('APIとの通信中にエラーが発生しました');
-  }
+// XKT014: 都市計画決定GISデータ（防火・準防火地域）
+export async function getFirePreventionZoneData(params: XYZParams): Promise<any> {
+  return callApi('XKT014', params);
 }
 
-/**
- * 地形区分に基づく液状化の発生傾向図データを取得する
- */
-export async function getLiquefactionTendencyData(params: LiquefactionParams): Promise<any> {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/LiquefactionTendency`, {
-      headers,
-      params,
-    });
-    return response.data;
-  } catch (error) {
-    console.error('液状化発生傾向図データの取得に失敗しました:', error);
-    if (axios.isAxiosError(error) && error.response) {
-      throw new Error(`API Error: ${error.response.status} - ${error.response.data.message || '不明なエラー'}`);
-    }
-    throw new Error('APIとの通信中にエラーが発生しました');
-  }
-} 
+// XKT015: 国土数値情報（駅別乗降客数）
+export async function getStationPassengersData(params: XYZParams): Promise<any> {
+  return callApi('XKT015', params);
+}
+
+// XKT016: 国土数値情報（災害危険区域）
+export async function getDisasterHazardAreaData(params: XYZParams): Promise<any> {
+  return callApi('XKT016', params);
+}
+
+// XKT017: 国土数値情報（図書館）
+export async function getLibraryData(params: XYZParams): Promise<any> {
+  return callApi('XKT017', params);
+}
+
+// XKT018: 国土数値情報（市区町村役場及び集会施設等）
+export async function getMunicipalOfficeData(params: XYZParams): Promise<any> {
+  return callApi('XKT018', params);
+}
+
+// XKT019: 国土数値情報（自然公園地域）
+export async function getNaturalParkData(params: NaturalParkParams): Promise<any> {
+  return callApi('XKT019', params);
+}
+
+// XKT020: 国土数値情報（大規模盛土造成地マップ）
+export async function getLargeFilledLandData(params: XYZParams): Promise<any> {
+  return callApi('XKT020', params);
+}
+
+// XKT021: 国土数値情報（地すべり防止地区）
+export async function getLandslidePreventionData(params: SlopeDisasterParams): Promise<any> {
+  return callApi('XKT021', params);
+}
+
+// XKT022: 国土数値情報（急傾斜地崩壊危険区域）
+export async function getSteepSlopeHazardData(params: SlopeDisasterParams): Promise<any> {
+  return callApi('XKT022', params);
+}
+
+// XKT023: 都市計画決定GISデータ（地区計画）
+export async function getDistrictPlanData(params: XYZParams): Promise<any> {
+  return callApi('XKT023', params);
+}
+
+// XKT024: 都市計画決定GISデータ（高度利用地区）
+export async function getHighDensityUtilizationData(params: XYZParams): Promise<any> {
+  return callApi('XKT024', params);
+}
+
+// XKT025: 国土交通省都市局（地形区分に基づく液状化の発生傾向図）
+export async function getLiquefactionTendencyData(params: XYZParams): Promise<any> {
+  return callApi('XKT025', params);
+}
+
+// XKT026: 国土数値情報（洪水浸水想定区域（想定最大規模））
+export async function getFloodInundationData(params: XYZParams): Promise<any> {
+  return callApi('XKT026', params);
+}
+
+// XKT027: 国土数値情報（高潮浸水想定区域）
+export async function getStormSurgeInundationData(params: XYZParams): Promise<any> {
+  return callApi('XKT027', params);
+}
+
+// XKT028: 国土数値情報（津波浸水想定）
+export async function getTsunamiInundationData(params: XYZParams): Promise<any> {
+  return callApi('XKT028', params);
+}
+
+// XKT029: 国土数値情報（土砂災害警戒区域）
+export async function getSedimentDisasterHazardData(params: XYZParams): Promise<any> {
+  return callApi('XKT029', params);
+}
+
+// XKT030: 都市計画決定GISデータ（都市計画道路）
+export async function getUrbanPlanningRoadData(params: XYZParams): Promise<any> {
+  return callApi('XKT030', params);
+}
+
+// XKT031: 国土数値情報（人口集中地区）
+export async function getDensityPopulationData(params: DensityPopulationParams): Promise<any> {
+  return callApi('XKT031', params);
+}
+
+// XGT001: 国土地理院GISデータ（指定緊急避難場所）
+export async function getEmergencyEvacuationSiteData(params: XYZParams): Promise<any> {
+  return callApi('XGT001', params);
+}
+
+// XST001: 国土調査（災害履歴）
+export async function getDisasterHistoryData(params: DisasterHistoryParams): Promise<any> {
+  return callApi('XST001', params);
+}
