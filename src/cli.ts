@@ -47,9 +47,7 @@ program
   .description('不動産情報ライブラリAPIを使用するMCPサーバー')
   .version('1.0.0')
   .option('-k, --api-key <key>', '不動産情報ライブラリAPIキー')
-  .option('-p, --port <number>', 'サーバーのポート番号', '3000')
   .option('-c, --config <path>', 'mcp.json設定ファイルのパス')
-  .option('-H, --host <hostname>', 'サーバーをバインドするホスト名', '127.0.0.1')
   .action((options) => {
     let config: McpConfig = { ...configFromEnv };
     
@@ -69,8 +67,6 @@ program
     
     // 優先順位: コマンドライン引数 > 設定ファイル > 環境変数
     const apiKey = options.apiKey || config.apiKey || process.env.REINFOLIB_API_KEY;
-    const port = parseInt(String(options.port || config.port || process.env.PORT || '3000'), 10);
-    const host = options.host || '127.0.0.1'; // IPv4 アドレスをデフォルトに
 
     // APIキーが設定されていない場合は起動させない
     if (!apiKey) {
@@ -89,9 +85,11 @@ program
 
     // 環境変数にAPIキーを設定
     process.env.REINFOLIB_API_KEY = apiKey;
-    
-    // サーバーを起動 - ホスト名も渡す
-    startServer(port, host);
+
+    startServer().catch((error) => {
+      console.error('サーバーの起動に失敗しました:', error);
+      process.exit(1);
+    });
   });
 
 program.parse(); 
