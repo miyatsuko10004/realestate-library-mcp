@@ -4,7 +4,7 @@
   "main": "dist/index.js",
   "type": "module",
   "bin": {
-    "realestate-library-mcp": "./bin/realestate-mcp.js"
+    "realestate-library-mcp": "bin/realestate-mcp.js"
   },
   "scripts": {
     "build": "tsc && chmod +x ./bin/realestate-mcp.js",
