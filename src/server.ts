@@ -56,7 +56,7 @@ function toJson(data: unknown): string {
 export async function startServer(): Promise<void> {
   const server = new McpServer({
     name: '不動産情報ライブラリMCP',
-    version: '1.1.0',
+    version: '2.0.0',
   });
 
   // ─── XIT001: 不動産価格（取引価格・成約価格）情報取得 ───────────────────
